@@ -1,0 +1,52 @@
+name: 'Git Tag Validate Version'
+description: 'Validate and parse git tags into structured version information supporting multiple version formats (semver, simple, docker, calver, date-based)'
+author: 'LiquidLogicLabs'
+inputs:
+  tag:
+    description: 'Specific tag to parse. If empty, uses most recent tag'
+    required: false
+    default: ''
+  versionType:
+    description: 'Version format type (auto, semver, simple, docker, calver, date-based). Default: auto'
+    required: false
+    default: 'auto'
+  verbose:
+    description: 'Enable debug logging'
+    required: false
+    default: 'false'
+outputs:
+  isValid:
+    description: 'Boolean indicating if version was successfully validated and parsed'
+  version:
+    description: 'Full version string (even if parsing failed)'
+  format:
+    description: 'Detected version format type (semver, simple, docker, calver, date-based, or empty if invalid)'
+  major:
+    description: 'Major version number (if available)'
+  minor:
+    description: 'Minor version number (if available)'
+  patch:
+    description: 'Patch version number (if available)'
+  prerelease:
+    description: 'Prerelease identifier (if available)'
+  build:
+    description: 'Build metadata (if available)'
+  commit:
+    description: 'Short commit SHA extracted from tag (if found in + or - format)'
+  year:
+    description: 'Year component (for calver and date-based formats only)'
+  month:
+    description: 'Month component (for calver and date-based formats only)'
+  day:
+    description: 'Day component (for calver and date-based formats only)'
+  hasPrerelease:
+    description: 'Boolean indicating if semver version has prerelease identifier'
+  hasBuild:
+    description: 'Boolean indicating if semver version has build metadata'
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
+branding:
+  icon: 'tag'
+  color: 'blue'
+
