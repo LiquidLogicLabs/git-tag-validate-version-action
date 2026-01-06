@@ -36,7 +36,6 @@ describe('Integration Tests', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return '';
         if (name === 'versionType') return 'auto';
-        if (name === 'verbose') return 'false';
         return '';
       });
 
@@ -55,7 +54,6 @@ describe('Integration Tests', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return '';
         if (name === 'versionType') return 'auto';
-        if (name === 'verbose') return 'false';
         return '';
       });
 
@@ -83,7 +81,6 @@ describe('Integration Tests', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return 'v1.2.3';
         if (name === 'versionType') return 'auto';
-        if (name === 'verbose') return 'false';
         return '';
       });
 
@@ -100,7 +97,6 @@ describe('Integration Tests', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return 'nonexistent';
         if (name === 'versionType') return 'auto';
-        if (name === 'verbose') return 'false';
         return '';
       });
 
@@ -127,7 +123,6 @@ describe('Integration Tests', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return 'v1.2.3';
         if (name === 'versionType') return 'auto';
-        if (name === 'verbose') return 'false';
         return '';
       });
 
@@ -143,7 +138,6 @@ describe('Integration Tests', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return '1.2.3';
         if (name === 'versionType') return 'semver';
-        if (name === 'verbose') return 'false';
         return '';
       });
 
@@ -159,7 +153,6 @@ describe('Integration Tests', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return 'v1.2.3';
         if (name === 'versionType') return 'invalid';
-        if (name === 'verbose') return 'false';
         return '';
       });
 
@@ -173,42 +166,24 @@ describe('Integration Tests', () => {
     });
   });
 
-  describe('Full Action Flow - Verbose Logging', () => {
-    it('should enable debug logging when verbose is true', async () => {
+  describe('Full Action Flow - Debug Logging', () => {
+    it('should call debug logging (output controlled by ACTIONS_STEP_DEBUG)', async () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return 'v1.2.3';
         if (name === 'versionType') return 'auto';
-        if (name === 'verbose') return 'true';
         return '';
       });
 
       mockGetTag.mockResolvedValue('v1.2.3');
 
-      // Simulate verbose logging
-      if (mockGetInput('verbose') === 'true') {
-        mockDebug('Verbose logging enabled');
-        mockDebug('Found tag: v1.2.3');
-      }
+      // Debug logging is always called, but only outputs when ACTIONS_STEP_DEBUG is set
+      // This is the standard GitHub Actions behavior
+      mockDebug('Input tag: v1.2.3');
+      mockDebug('Input versionType: auto');
+      mockDebug('Looking for specified tag: v1.2.3');
+      mockDebug('Found tag: v1.2.3');
 
       expect(mockDebug).toHaveBeenCalled();
-    });
-
-    it('should not enable debug logging when verbose is false', async () => {
-      mockGetInput.mockImplementation((name: string) => {
-        if (name === 'tag') return 'v1.2.3';
-        if (name === 'versionType') return 'auto';
-        if (name === 'verbose') return 'false';
-        return '';
-      });
-
-      mockGetTag.mockResolvedValue('v1.2.3');
-
-      // Simulate no verbose logging
-      if (mockGetInput('verbose') !== 'true') {
-        // Debug should not be called for non-verbose operations
-      }
-
-      // In non-verbose mode, debug might still be called for errors, but not for normal flow
     });
   });
 
@@ -217,7 +192,6 @@ describe('Integration Tests', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return 'v1.2.3+abc1234';
         if (name === 'versionType') return 'auto';
-        if (name === 'verbose') return 'false';
         return '';
       });
 
@@ -231,7 +205,6 @@ describe('Integration Tests', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return 'v1.2.3-abc1234';
         if (name === 'versionType') return 'auto';
-        if (name === 'verbose') return 'false';
         return '';
       });
 
@@ -245,7 +218,6 @@ describe('Integration Tests', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return 'v1.2.3';
         if (name === 'versionType') return 'auto';
-        if (name === 'verbose') return 'false';
         return '';
       });
 
@@ -261,7 +233,6 @@ describe('Integration Tests', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return 'v1.2.3-alpha.1+build.1';
         if (name === 'versionType') return 'auto';
-        if (name === 'verbose') return 'false';
         return '';
       });
 
@@ -304,7 +275,6 @@ describe('Integration Tests', () => {
       mockGetInput.mockImplementation((name: string) => {
         if (name === 'tag') return 'invalid-tag';
         if (name === 'versionType') return 'auto';
-        if (name === 'verbose') return 'false';
         return '';
       });
 

@@ -12,7 +12,7 @@ A GitHub Action that validates and parses git tags into structured version infor
 - **Auto-Detection**: Automatically determines the version format type, or specify it explicitly
 - **Comprehensive Outputs**: Extracts major, minor, patch, prerelease, build metadata, and commit SHA
 - **Flexible Tag Input**: Use a specific tag or automatically use the most recent tag
-- **Verbose Logging**: Optional debug logging for troubleshooting
+- **Verbose Logging**: Optional debug output via `verbose` input flag or `ACTIONS_STEP_DEBUG` environment variable
 - **Extensible Architecture**: Easy to add new version format parsers
 
 ## Usage
@@ -46,7 +46,11 @@ A GitHub Action that validates and parses git tags into structured version infor
   id: version
 ```
 
-### With Verbose Logging
+### Enable Verbose Logging
+
+Verbose logging can be enabled in two ways:
+
+**Option 1: Using the `verbose` input flag (recommended for convenience)**
 
 ```yaml
 - name: Parse version with debug logging
@@ -56,6 +60,47 @@ A GitHub Action that validates and parses git tags into structured version infor
     verbose: 'true'
   id: version
 ```
+
+**Option 2: Using GitHub Actions' standard `ACTIONS_STEP_DEBUG` environment variable**
+
+Enable it at the workflow level:
+
+```yaml
+name: Parse Version
+
+on: [push]
+
+env:
+  ACTIONS_STEP_DEBUG: true
+
+jobs:
+  parse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Parse version with debug logging
+        uses: LiquidLogicLabs/actions/git-tag-validate-version-action@v1
+        with:
+          tag: 'v1.2.3'
+        id: version
+```
+
+Or enable it for a specific step:
+
+```yaml
+- name: Parse version with debug logging
+  uses: LiquidLogicLabs/actions/git-tag-validate-version-action@v1
+  env:
+    ACTIONS_STEP_DEBUG: true
+  with:
+    tag: 'v1.2.3'
+  id: version
+```
+
+Both methods enable the same debug output. The `verbose` input flag is a convenience option that automatically sets `ACTIONS_STEP_DEBUG` for you.
 
 ### Use Outputs
 
@@ -81,7 +126,7 @@ A GitHub Action that validates and parses git tags into structured version infor
 |-------|-------------|----------|---------|
 | `tag` | Specific tag to parse. If empty, uses most recent tag | No | `''` |
 | `versionType` | Version format type (`auto`, `semver`, `simple`, `docker`, `calver`, `date-based`) | No | `auto` |
-| `verbose` | Enable debug logging | No | `false` |
+| `verbose` | Force enable debug logging (sets `ACTIONS_STEP_DEBUG=true`). Can also be enabled via `ACTIONS_STEP_DEBUG` environment variable | No | `false` |
 
 ## Outputs
 

@@ -25756,88 +25756,69 @@ async function run() {
         const tagInput = core.getInput('tag');
         const versionTypeInput = core.getInput('versionType') || 'auto';
         const verboseInput = core.getInput('verbose') || 'false';
-        const verbose = verboseInput.toLowerCase() === 'true';
-        // Set up debug logging if verbose is enabled
-        if (verbose) {
-            core.debug(`Verbose logging enabled`);
-            core.debug(`Input tag: ${tagInput || '(empty - will use most recent)'}`);
-            core.debug(`Input versionType: ${versionTypeInput}`);
+        // Enable debug logging if requested via input flag
+        // This sets ACTIONS_STEP_DEBUG so all core.debug() calls will output
+        if (verboseInput.toLowerCase() === 'true') {
+            process.env.ACTIONS_STEP_DEBUG = 'true';
         }
+        // Debug logging (outputs when ACTIONS_STEP_DEBUG is enabled or debug input is true)
+        core.debug(`Input tag: ${tagInput || '(empty - will use most recent)'}`);
+        core.debug(`Input versionType: ${versionTypeInput}`);
         // Get tag (from input or most recent)
         let tag = null;
         if (tagInput && tagInput.trim() !== '') {
-            if (verbose) {
-                core.debug(`Looking for specified tag: ${tagInput}`);
-            }
+            core.debug(`Looking for specified tag: ${tagInput}`);
             tag = await (0, git_1.getTag)(tagInput.trim());
             if (!tag) {
-                if (verbose) {
-                    core.debug(`Tag '${tagInput}' not found`);
-                }
+                core.debug(`Tag '${tagInput}' not found`);
                 // Tag not found - set outputs to empty
                 setEmptyOutputs();
                 return;
             }
-            if (verbose) {
-                core.debug(`Found tag: ${tag}`);
-            }
+            core.debug(`Found tag: ${tag}`);
         }
         else {
-            if (verbose) {
-                core.debug(`No tag specified, getting most recent tag`);
-            }
+            core.debug(`No tag specified, getting most recent tag`);
             tag = await (0, git_1.getMostRecentTag)();
             if (!tag) {
-                if (verbose) {
-                    core.debug(`No tags found in repository`);
-                }
+                core.debug(`No tags found in repository`);
                 // No tags exist - set outputs to empty
                 setEmptyOutputs();
                 return;
             }
-            if (verbose) {
-                core.debug(`Most recent tag: ${tag}`);
-            }
+            core.debug(`Most recent tag: ${tag}`);
         }
         // Parse version type
         let versionType;
         try {
             versionType = versionTypeInput.toLowerCase();
             if (!Object.values(types_1.VersionType).includes(versionType)) {
-                if (verbose) {
-                    core.debug(`Invalid versionType '${versionTypeInput}', falling back to auto`);
-                }
+                core.debug(`Invalid versionType '${versionTypeInput}', falling back to auto`);
                 versionType = types_1.VersionType.AUTO;
             }
         }
         catch (error) {
-            if (verbose) {
-                core.debug(`Error parsing versionType, falling back to auto`);
-            }
+            core.debug(`Error parsing versionType, falling back to auto`);
             versionType = types_1.VersionType.AUTO;
         }
         // Parse version
         const parserRegistry = new parsers_1.ParserRegistry();
-        if (verbose) {
-            core.debug(`Parsing tag '${tag}' with versionType '${versionType}'`);
-        }
+        core.debug(`Parsing tag '${tag}' with versionType '${versionType}'`);
         const parseResult = parserRegistry.parse(tag, versionType);
-        if (verbose) {
-            core.debug(`Parse result: isValid=${parseResult.isValid}`);
-            core.debug(`Version components: major=${parseResult.info.major}, minor=${parseResult.info.minor}, patch=${parseResult.info.patch}`);
-            if (parseResult.info.prerelease) {
-                core.debug(`Prerelease: ${parseResult.info.prerelease}`);
-            }
-            if (parseResult.info.build) {
-                core.debug(`Build: ${parseResult.info.build}`);
-            }
+        core.debug(`Parse result: isValid=${parseResult.isValid}`);
+        core.debug(`Version components: major=${parseResult.info.major}, minor=${parseResult.info.minor}, patch=${parseResult.info.patch}`);
+        if (parseResult.info.prerelease) {
+            core.debug(`Prerelease: ${parseResult.info.prerelease}`);
+        }
+        if (parseResult.info.build) {
+            core.debug(`Build: ${parseResult.info.build}`);
         }
         // Extract commit SHA
         const commit = (0, commit_extractor_1.extractCommit)(tag);
-        if (verbose && commit) {
+        if (commit) {
             core.debug(`Extracted commit SHA: ${commit}`);
         }
-        else if (verbose) {
+        else {
             core.debug(`No commit SHA found in tag`);
         }
         // Extract format-specific information
@@ -25857,14 +25838,12 @@ async function run() {
             hasPrerelease = parseResult.info.prerelease ? 'true' : 'false';
             hasBuild = parseResult.info.build ? 'true' : 'false';
         }
-        if (verbose) {
-            core.debug(`Detected format: ${format}`);
-            if (year) {
-                core.debug(`Date components: year=${year}, month=${month}, day=${day}`);
-            }
-            if (parseResult.format === types_1.VersionType.SEMVER) {
-                core.debug(`Semver flags: hasPrerelease=${hasPrerelease}, hasBuild=${hasBuild}`);
-            }
+        core.debug(`Detected format: ${format}`);
+        if (year) {
+            core.debug(`Date components: year=${year}, month=${month}, day=${day}`);
+        }
+        if (parseResult.format === types_1.VersionType.SEMVER) {
+            core.debug(`Semver flags: hasPrerelease=${hasPrerelease}, hasBuild=${hasBuild}`);
         }
         // Set outputs
         core.setOutput('isValid', parseResult.isValid.toString());
@@ -25881,9 +25860,7 @@ async function run() {
         core.setOutput('day', day);
         core.setOutput('hasPrerelease', hasPrerelease);
         core.setOutput('hasBuild', hasBuild);
-        if (verbose) {
-            core.debug('Action completed successfully');
-        }
+        core.debug('Action completed successfully');
     }
     catch (error) {
         if (error instanceof Error) {
