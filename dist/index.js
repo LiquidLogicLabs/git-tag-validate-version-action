@@ -25770,23 +25770,23 @@ async function run() {
             core.debug(`Looking for specified tag: ${tagInput}`);
             tag = await (0, git_1.getTag)(tagInput.trim());
             if (!tag) {
-                core.debug(`Tag '${tagInput}' not found`);
+                core.warning(`Tag '${tagInput}' not found`);
                 // Tag not found - set outputs to empty
                 setEmptyOutputs();
                 return;
             }
-            core.debug(`Found tag: ${tag}`);
+            core.info(`Found tag: ${tag}`);
         }
         else {
             core.debug(`No tag specified, getting most recent tag`);
             tag = await (0, git_1.getMostRecentTag)();
             if (!tag) {
-                core.debug(`No tags found in repository`);
+                core.warning(`No tags found in repository`);
                 // No tags exist - set outputs to empty
                 setEmptyOutputs();
                 return;
             }
-            core.debug(`Most recent tag: ${tag}`);
+            core.info(`Using most recent tag: ${tag}`);
         }
         // Parse version type
         let versionType;
@@ -25805,6 +25805,12 @@ async function run() {
         const parserRegistry = new parsers_1.ParserRegistry();
         core.debug(`Parsing tag '${tag}' with versionType '${versionType}'`);
         const parseResult = parserRegistry.parse(tag, versionType);
+        if (parseResult.isValid) {
+            core.info(`✓ Successfully parsed version: ${parseResult.version} (format: ${parseResult.format || 'unknown'})`);
+        }
+        else {
+            core.warning(`⚠ Failed to parse tag '${tag}' as valid version`);
+        }
         core.debug(`Parse result: isValid=${parseResult.isValid}`);
         core.debug(`Version components: major=${parseResult.info.major}, minor=${parseResult.info.minor}, patch=${parseResult.info.patch}`);
         if (parseResult.info.prerelease) {
