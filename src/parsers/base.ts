@@ -1,4 +1,4 @@
-import { ParserResult, VersionInfo, VersionType } from '../types';
+import { ParserResult, VersionInfo } from '../types';
 
 /**
  * Base interface for version parsers

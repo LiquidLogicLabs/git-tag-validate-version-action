@@ -61,7 +61,7 @@ export class SemverParser extends BaseParser {
     });
   }
 
-  protected reconstructVersion(info: VersionInfo, originalTag: string): string {
+  protected reconstructVersion(info: VersionInfo, _originalTag: string): string {
     // Normalize to 3 parts: add .0 if patch is missing
     const patch = info.patch || '0';
     let version = `${info.major}.${info.minor}.${patch}`;

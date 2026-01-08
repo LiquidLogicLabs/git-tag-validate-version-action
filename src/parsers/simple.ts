@@ -34,7 +34,7 @@ export class SimpleParser extends BaseParser {
     });
   }
 
-  protected reconstructVersion(info: VersionInfo, originalTag: string): string {
+  protected reconstructVersion(info: VersionInfo, _originalTag: string): string {
     // Build version from non-empty components (2-4 parts)
     const parts: string[] = [info.major];
     if (info.minor) parts.push(info.minor);

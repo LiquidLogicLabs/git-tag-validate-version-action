@@ -51,7 +51,7 @@ export class DateBasedParser extends BaseParser {
     });
   }
 
-  protected reconstructVersion(info: VersionInfo, originalTag: string): string {
+  protected reconstructVersion(info: VersionInfo, _originalTag: string): string {
     // Standardize to YYYY-MM-DD format with proper padding
     const year = info.major.padStart(4, '0'); // Ensure 4-digit year
     const month = info.minor.padStart(2, '0'); // Pad month to 2 digits
