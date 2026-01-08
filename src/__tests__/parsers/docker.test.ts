@@ -32,7 +32,7 @@ describe('DockerParser', () => {
     it('should parse special tags without numeric components', () => {
       const result = parser.parse('latest');
       expect(result.isValid).toBe(true);
-      expect(result.version).toBe('latest');
+      expect(result.version).toBe('latest'); // Special tags remain unchanged
       expect(result.info.major).toBe('');
       expect(result.info.minor).toBe('');
       expect(result.info.patch).toBe('');
@@ -43,6 +43,7 @@ describe('DockerParser', () => {
     it('should parse version tags', () => {
       const result = parser.parse('1.2.3');
       expect(result.isValid).toBe(true);
+      expect(result.version).toBe('1.2.3'); // Reconstructed from components
       expect(result.info.major).toBe('1');
       expect(result.info.minor).toBe('2');
       expect(result.info.patch).toBe('3');
@@ -51,6 +52,7 @@ describe('DockerParser', () => {
     it('should parse version tags with v prefix', () => {
       const result = parser.parse('v1.2.3');
       expect(result.isValid).toBe(true);
+      expect(result.version).toBe('1.2.3'); // Reconstructed without 'v' prefix
       expect(result.info.major).toBe('1');
       expect(result.info.minor).toBe('2');
       expect(result.info.patch).toBe('3');
@@ -59,6 +61,7 @@ describe('DockerParser', () => {
     it('should parse tags with suffix', () => {
       const result = parser.parse('1.2.3-alpine');
       expect(result.isValid).toBe(true);
+      expect(result.version).toBe('1.2.3-alpine'); // Reconstructed with suffix
       expect(result.info.major).toBe('1');
       expect(result.info.minor).toBe('2');
       expect(result.info.patch).toBe('3');
@@ -68,6 +71,7 @@ describe('DockerParser', () => {
     it('should parse tags with multiple suffixes', () => {
       const result = parser.parse('1.2.3-alpine-3.18');
       expect(result.isValid).toBe(true);
+      expect(result.version).toBe('1.2.3-alpine-3.18'); // Reconstructed with suffix
       expect(result.info.major).toBe('1');
       expect(result.info.minor).toBe('2');
       expect(result.info.patch).toBe('3');
@@ -77,17 +81,36 @@ describe('DockerParser', () => {
     it('should handle case-insensitive special tags', () => {
       const result1 = parser.parse('LATEST');
       expect(result1.isValid).toBe(true);
+      expect(result1.version).toBe('LATEST'); // Special tags remain unchanged (case preserved)
       expect(result1.info.major).toBe('');
 
       const result2 = parser.parse('Stable');
       expect(result2.isValid).toBe(true);
+      expect(result2.version).toBe('Stable'); // Special tags remain unchanged
       expect(result2.info.major).toBe('');
     });
 
     it('should fail on invalid tags', () => {
       const result = parser.parse('invalid-tag-format');
       expect(result.isValid).toBe(false);
-      expect(result.version).toBe('invalid-tag-format');
+      expect(result.version).toBe('invalid-tag-format'); // Failed parse returns original tag
+    });
+  });
+
+  describe('Version Reconstruction', () => {
+    it('should keep special tags unchanged', () => {
+      const result = parser.parse('latest');
+      expect(result.version).toBe('latest');
+    });
+
+    it('should reconstruct version without v prefix', () => {
+      const result = parser.parse('v1.2.3-alpine');
+      expect(result.version).toBe('1.2.3-alpine');
+    });
+
+    it('should reconstruct version with missing patch', () => {
+      const result = parser.parse('v1.2-alpine');
+      expect(result.version).toBe('1.2.0-alpine'); // Normalize to 3 parts
     });
   });
 });

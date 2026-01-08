@@ -25937,11 +25937,13 @@ class BaseParser {
     }
     /**
      * Create a successful parse result
+     * Reconstructs the version string from components to ensure normalized format
      */
     createSuccessResult(tag, info) {
+        const reconstructedVersion = this.reconstructVersion(info, tag);
         return {
             isValid: true,
-            version: tag,
+            version: reconstructedVersion,
             info,
         };
     }
@@ -26000,6 +26002,13 @@ class CalverParser extends base_1.BaseParser {
             build: '',
         });
     }
+    reconstructVersion(info, originalTag) {
+        // Reconstruct as YYYY.MM.DD with proper padding
+        const year = info.major.padStart(4, '0'); // Ensure 4-digit year
+        const month = info.minor.padStart(2, '0'); // Pad month to 2 digits
+        const day = info.patch.padStart(2, '0'); // Pad day to 2 digits
+        return `${year}.${month}.${day}`;
+    }
 }
 exports.CalverParser = CalverParser;
 
@@ -26021,7 +26030,7 @@ const base_1 = __nccwpck_require__(7651);
 class DateBasedParser extends base_1.BaseParser {
     // Date patterns
     yyyymmddPattern = /^(\d{4})(\d{2})(\d{2})$/; // 20240115
-    yyyyMmDdPattern = /^(\d{4})[-/](\d{2})[-/](\d{2})$/; // 2024-01-15 or 2024/01/15
+    yyyyMmDdPattern = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/; // 2024-01-15, 2024-1-5, 2024/01/15, 2024/1/5
     canParse(tag) {
         if (this.yyyymmddPattern.test(tag)) {
             return this.isValidDate(tag.match(this.yyyymmddPattern));
@@ -26055,6 +26064,13 @@ class DateBasedParser extends base_1.BaseParser {
             prerelease: '',
             build: '',
         });
+    }
+    reconstructVersion(info, originalTag) {
+        // Standardize to YYYY-MM-DD format with proper padding
+        const year = info.major.padStart(4, '0'); // Ensure 4-digit year
+        const month = info.minor.padStart(2, '0'); // Pad month to 2 digits
+        const day = info.patch.padStart(2, '0'); // Pad day to 2 digits
+        return `${year}-${month}-${day}`;
     }
 }
 exports.DateBasedParser = DateBasedParser;
@@ -26108,6 +26124,21 @@ class DockerParser extends base_1.BaseParser {
             prerelease: suffix,
             build: '',
         });
+    }
+    reconstructVersion(info, originalTag) {
+        // Special tags (latest, stable, etc.) - keep original tag
+        const lowerTag = originalTag.toLowerCase();
+        if (this.specialTags.includes(lowerTag)) {
+            return originalTag;
+        }
+        // Version-like tags: normalize to 3 parts if patch missing, add suffix
+        const patch = info.patch || '0';
+        let version = `${info.major}.${info.minor}.${patch}`;
+        // Add suffix (stored in prerelease field) if present
+        if (info.prerelease) {
+            version += `-${info.prerelease}`;
+        }
+        return version;
     }
 }
 exports.DockerParser = DockerParser;
@@ -26305,6 +26336,24 @@ class SemverParser extends base_1.BaseParser {
             build,
         });
     }
+    reconstructVersion(info, originalTag) {
+        // Normalize to 3 parts: add .0 if patch is missing
+        const patch = info.patch || '0';
+        let version = `${info.major}.${info.minor}.${patch}`;
+        // Add prerelease if present
+        // SemVer spec: prerelease identifiers must be dot-separated, not hyphen-separated
+        if (info.prerelease) {
+            // Normalize hyphens to dots in prerelease identifiers to conform to SemVer spec
+            const normalizedPrerelease = info.prerelease.replace(/-/g, '.');
+            version += `-${normalizedPrerelease}`;
+        }
+        // Add build metadata if present
+        // SemVer spec: build metadata identifiers can be dot or hyphen separated
+        if (info.build) {
+            version += `+${info.build}`;
+        }
+        return version;
+    }
 }
 exports.SemverParser = SemverParser;
 
@@ -26334,14 +26383,30 @@ class SimpleParser extends base_1.BaseParser {
         if (!match) {
             return this.createFailedResult(tag);
         }
-        const [, major, minor = '', patch = ''] = match;
+        const [, major, minor = '', patch = '', fourth = ''] = match;
+        // Store 4th part in build field if present (since VersionInfo doesn't have a 4th field)
+        // We'll reconstruct from original tag if 4 parts exist
+        const hasFourthPart = fourth !== '';
         return this.createSuccessResult(tag, {
             major,
             minor,
             patch,
             prerelease: '',
-            build: '',
+            build: hasFourthPart ? fourth : '', // Temporarily store 4th part here
         });
+    }
+    reconstructVersion(info, originalTag) {
+        // Build version from non-empty components (2-4 parts)
+        const parts = [info.major];
+        if (info.minor)
+            parts.push(info.minor);
+        if (info.patch)
+            parts.push(info.patch);
+        // If build field contains a 4th part (numeric), add it
+        if (info.build && /^\d+$/.test(info.build)) {
+            parts.push(info.build);
+        }
+        return parts.join('.');
     }
 }
 exports.SimpleParser = SimpleParser;

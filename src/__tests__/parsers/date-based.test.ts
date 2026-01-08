@@ -40,7 +40,7 @@ describe('DateBasedParser', () => {
     it('should parse YYYYMMDD format', () => {
       const result = parser.parse('20240115');
       expect(result.isValid).toBe(true);
-      expect(result.version).toBe('20240115');
+      expect(result.version).toBe('2024-01-15'); // Reconstructed to YYYY-MM-DD
       expect(result.info.major).toBe('2024');
       expect(result.info.minor).toBe('01');
       expect(result.info.patch).toBe('15');
@@ -49,6 +49,7 @@ describe('DateBasedParser', () => {
     it('should parse YYYY-MM-DD format', () => {
       const result = parser.parse('2024-01-15');
       expect(result.isValid).toBe(true);
+      expect(result.version).toBe('2024-01-15'); // Already in standard format
       expect(result.info.major).toBe('2024');
       expect(result.info.minor).toBe('01');
       expect(result.info.patch).toBe('15');
@@ -57,6 +58,7 @@ describe('DateBasedParser', () => {
     it('should parse YYYY/MM/DD format', () => {
       const result = parser.parse('2024/01/15');
       expect(result.isValid).toBe(true);
+      expect(result.version).toBe('2024-01-15'); // Reconstructed to YYYY-MM-DD
       expect(result.info.major).toBe('2024');
       expect(result.info.minor).toBe('01');
       expect(result.info.patch).toBe('15');
@@ -65,17 +67,36 @@ describe('DateBasedParser', () => {
     it('should handle edge cases', () => {
       const result1 = parser.parse('20000101');
       expect(result1.isValid).toBe(true);
+      expect(result1.version).toBe('2000-01-01'); // Reconstructed to YYYY-MM-DD
       expect(result1.info.major).toBe('2000');
 
       const result2 = parser.parse('20991231');
       expect(result2.isValid).toBe(true);
+      expect(result2.version).toBe('2099-12-31'); // Reconstructed to YYYY-MM-DD
       expect(result2.info.major).toBe('2099');
     });
 
     it('should fail on invalid tags', () => {
       const result = parser.parse('invalid');
       expect(result.isValid).toBe(false);
-      expect(result.version).toBe('invalid');
+      expect(result.version).toBe('invalid'); // Failed parse returns original tag
+    });
+  });
+
+  describe('Version Reconstruction', () => {
+    it('should standardize YYYYMMDD to YYYY-MM-DD', () => {
+      const result = parser.parse('20240115');
+      expect(result.version).toBe('2024-01-15');
+    });
+
+    it('should keep YYYY-MM-DD format', () => {
+      const result = parser.parse('2024-01-15');
+      expect(result.version).toBe('2024-01-15');
+    });
+
+    it('should convert YYYY/MM/DD to YYYY-MM-DD', () => {
+      const result = parser.parse('2024/01/15');
+      expect(result.version).toBe('2024-01-15');
     });
   });
 });

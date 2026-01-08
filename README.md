@@ -133,7 +133,7 @@ Both methods enable the same debug output. The `verbose` input flag is a conveni
 | Output | Description |
 |--------|-------------|
 | `isValid` | Boolean indicating if version was successfully validated and parsed |
-| `version` | Full version string (even if parsing failed) |
+| `version` | Normalized version string reconstructed from parsed components (format-compliant, no 'v' prefix, standardized separators). Returns original tag if parsing failed |
 | `format` | Detected version format type (semver, simple, docker, calver, date-based, or empty if invalid) |
 | `major` | Major version number (if available) |
 | `minor` | Minor version number (if available) |
@@ -195,6 +195,28 @@ Both methods enable the same debug output. The `verbose` input flag is a conveni
 - `20240115` (YYYYMMDD)
 - `2024-01-15` (YYYY-MM-DD)
 - `2024/01/15` (YYYY/MM/DD)
+
+## Version Output Normalization
+
+The `version` output is reconstructed from parsed components to ensure a consistent, format-compliant string:
+
+- **Semver**: Normalized to 3 parts (missing patch becomes `.0`), no 'v' prefix
+  - `v1.2.3` → `1.2.3`
+  - `v1.2` → `1.2.0`
+  - `v1.2-alpha.1` → `1.2.0-alpha.1`
+- **Simple**: No 'v' prefix, only non-empty components included
+  - `v1.2.3.4` → `1.2.3.4`
+  - `v1.2` → `1.2`
+- **Docker**: Special tags unchanged, version tags normalized (no 'v', patch normalized if missing)
+  - `latest` → `latest`
+  - `v1.2.3-alpine` → `1.2.3-alpine`
+  - `v1.2-alpine` → `1.2.0-alpine`
+- **Calver**: Normalized to `YYYY.MM.DD` with 4-digit year and padded month/day
+  - `24.01.15` → `2024.01.15`
+  - `2024.1.15` → `2024.01.15`
+- **Date-based**: Standardized to `YYYY-MM-DD` format
+  - `20240115` → `2024-01-15`
+  - `2024/01/15` → `2024-01-15`
 
 ## Commit SHA Extraction
 
@@ -273,6 +295,13 @@ This action only reads git tags from the local repository. It does not:
 - Access any external APIs
 - Modify the repository
 - Access any secrets or sensitive data
+
+## Documentation
+
+For developers and contributors:
+
+- **[Development Guide](docs/DEVELOPMENT.md)** - Setup, development workflow, and contributing guidelines
+- **[Testing Guide](docs/TESTING.md)** - Complete testing documentation
 
 ## License
 

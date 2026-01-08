@@ -1,4 +1,4 @@
-import { ParserResult } from '../types';
+import { ParserResult, VersionInfo, VersionType } from '../types';
 
 /**
  * Base interface for version parsers
@@ -22,6 +22,12 @@ export interface VersionParser {
 export abstract class BaseParser implements VersionParser {
   abstract parse(tag: string): ParserResult;
   abstract canParse(tag: string): boolean;
+
+  /**
+   * Reconstruct a normalized version string from parsed components
+   * Must be implemented by each parser to format according to its rules
+   */
+  protected abstract reconstructVersion(info: VersionInfo, originalTag: string): string;
 
   /**
    * Create an empty VersionInfo object
@@ -49,11 +55,13 @@ export abstract class BaseParser implements VersionParser {
 
   /**
    * Create a successful parse result
+   * Reconstructs the version string from components to ensure normalized format
    */
   protected createSuccessResult(tag: string, info: { major: string; minor: string; patch: string; prerelease: string; build: string }): ParserResult {
+    const reconstructedVersion = this.reconstructVersion(info, tag);
     return {
       isValid: true,
-      version: tag,
+      version: reconstructedVersion,
       info,
     };
   }

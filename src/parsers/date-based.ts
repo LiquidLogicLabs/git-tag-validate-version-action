@@ -1,4 +1,5 @@
 import { BaseParser } from './base';
+import { VersionInfo } from '../types';
 
 /**
  * Parser for date-based version formats
@@ -7,7 +8,7 @@ import { BaseParser } from './base';
 export class DateBasedParser extends BaseParser {
   // Date patterns
   private readonly yyyymmddPattern = /^(\d{4})(\d{2})(\d{2})$/; // 20240115
-  private readonly yyyyMmDdPattern = /^(\d{4})[-/](\d{2})[-/](\d{2})$/; // 2024-01-15 or 2024/01/15
+  private readonly yyyyMmDdPattern = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/; // 2024-01-15, 2024-1-5, 2024/01/15, 2024/1/5
 
   canParse(tag: string): boolean {
     if (this.yyyymmddPattern.test(tag)) {
@@ -48,6 +49,14 @@ export class DateBasedParser extends BaseParser {
       prerelease: '',
       build: '',
     });
+  }
+
+  protected reconstructVersion(info: VersionInfo, originalTag: string): string {
+    // Standardize to YYYY-MM-DD format with proper padding
+    const year = info.major.padStart(4, '0'); // Ensure 4-digit year
+    const month = info.minor.padStart(2, '0'); // Pad month to 2 digits
+    const day = info.patch.padStart(2, '0'); // Pad day to 2 digits
+    return `${year}-${month}-${day}`;
   }
 }
 

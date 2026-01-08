@@ -1,4 +1,5 @@
 import { BaseParser } from './base';
+import { VersionInfo } from '../types';
 
 /**
  * Parser for simple versioning format
@@ -18,15 +19,31 @@ export class SimpleParser extends BaseParser {
       return this.createFailedResult(tag);
     }
 
-    const [, major, minor = '', patch = ''] = match;
+    const [, major, minor = '', patch = '', fourth = ''] = match;
+    
+    // Store 4th part in build field if present (since VersionInfo doesn't have a 4th field)
+    // We'll reconstruct from original tag if 4 parts exist
+    const hasFourthPart = fourth !== '';
 
     return this.createSuccessResult(tag, {
       major,
       minor,
       patch,
       prerelease: '',
-      build: '',
+      build: hasFourthPart ? fourth : '', // Temporarily store 4th part here
     });
+  }
+
+  protected reconstructVersion(info: VersionInfo, originalTag: string): string {
+    // Build version from non-empty components (2-4 parts)
+    const parts: string[] = [info.major];
+    if (info.minor) parts.push(info.minor);
+    if (info.patch) parts.push(info.patch);
+    // If build field contains a 4th part (numeric), add it
+    if (info.build && /^\d+$/.test(info.build)) {
+      parts.push(info.build);
+    }
+    return parts.join('.');
   }
 }
 

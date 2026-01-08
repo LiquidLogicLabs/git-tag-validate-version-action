@@ -41,6 +41,21 @@ class DockerParser extends base_1.BaseParser {
             build: '',
         });
     }
+    reconstructVersion(info, originalTag) {
+        // Special tags (latest, stable, etc.) - keep original tag
+        const lowerTag = originalTag.toLowerCase();
+        if (this.specialTags.includes(lowerTag)) {
+            return originalTag;
+        }
+        // Version-like tags: normalize to 3 parts if patch missing, add suffix
+        const patch = info.patch || '0';
+        let version = `${info.major}.${info.minor}.${patch}`;
+        // Add suffix (stored in prerelease field) if present
+        if (info.prerelease) {
+            version += `-${info.prerelease}`;
+        }
+        return version;
+    }
 }
 exports.DockerParser = DockerParser;
 //# sourceMappingURL=docker.js.map

@@ -1,7 +1,8 @@
 name: Test
 
 on:
-  workflow_call:  # Only workflow_call - no direct triggers
+  workflow_call:  # For CI/release workflows
+  workflow_dispatch:  # For local testing with act
 
 permissions:
   contents: read

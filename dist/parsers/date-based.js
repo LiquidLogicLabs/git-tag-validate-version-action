@@ -9,7 +9,7 @@ const base_1 = require("./base");
 class DateBasedParser extends base_1.BaseParser {
     // Date patterns
     yyyymmddPattern = /^(\d{4})(\d{2})(\d{2})$/; // 20240115
-    yyyyMmDdPattern = /^(\d{4})[-/](\d{2})[-/](\d{2})$/; // 2024-01-15 or 2024/01/15
+    yyyyMmDdPattern = /^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/; // 2024-01-15, 2024-1-5, 2024/01/15, 2024/1/5
     canParse(tag) {
         if (this.yyyymmddPattern.test(tag)) {
             return this.isValidDate(tag.match(this.yyyymmddPattern));
@@ -43,6 +43,13 @@ class DateBasedParser extends base_1.BaseParser {
             prerelease: '',
             build: '',
         });
+    }
+    reconstructVersion(info, originalTag) {
+        // Standardize to YYYY-MM-DD format with proper padding
+        const year = info.major.padStart(4, '0'); // Ensure 4-digit year
+        const month = info.minor.padStart(2, '0'); // Pad month to 2 digits
+        const day = info.patch.padStart(2, '0'); // Pad day to 2 digits
+        return `${year}-${month}-${day}`;
     }
 }
 exports.DateBasedParser = DateBasedParser;

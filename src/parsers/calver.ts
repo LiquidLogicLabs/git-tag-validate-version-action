@@ -1,4 +1,5 @@
 import { BaseParser } from './base';
+import { VersionInfo } from '../types';
 
 /**
  * Parser for Calendar Versioning (Calver) format
@@ -48,6 +49,14 @@ export class CalverParser extends BaseParser {
       prerelease: '',
       build: '',
     });
+  }
+
+  protected reconstructVersion(info: VersionInfo, originalTag: string): string {
+    // Reconstruct as YYYY.MM.DD with proper padding
+    const year = info.major.padStart(4, '0'); // Ensure 4-digit year
+    const month = info.minor.padStart(2, '0'); // Pad month to 2 digits
+    const day = info.patch.padStart(2, '0'); // Pad day to 2 digits
+    return `${year}.${month}.${day}`;
   }
 }
 

@@ -1,4 +1,5 @@
 import { BaseParser } from './base';
+import { VersionInfo } from '../types';
 
 /**
  * Parser for Docker tag formats
@@ -45,6 +46,25 @@ export class DockerParser extends BaseParser {
       prerelease: suffix,
       build: '',
     });
+  }
+
+  protected reconstructVersion(info: VersionInfo, originalTag: string): string {
+    // Special tags (latest, stable, etc.) - keep original tag
+    const lowerTag = originalTag.toLowerCase();
+    if (this.specialTags.includes(lowerTag)) {
+      return originalTag;
+    }
+
+    // Version-like tags: normalize to 3 parts if patch missing, add suffix
+    const patch = info.patch || '0';
+    let version = `${info.major}.${info.minor}.${patch}`;
+    
+    // Add suffix (stored in prerelease field) if present
+    if (info.prerelease) {
+      version += `-${info.prerelease}`;
+    }
+
+    return version;
   }
 }
 

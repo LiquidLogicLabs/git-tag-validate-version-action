@@ -260,7 +260,7 @@ describe('Integration Tests', () => {
       };
 
       expect(outputs.isValid).toBe('true');
-      expect(outputs.version).toBe('v1.2.3-alpha.1+build.1');
+      expect(outputs.version).toBe('1.2.3-alpha.1+build.1'); // Reconstructed without 'v' prefix
       expect(outputs.format).toBe(VersionType.SEMVER);
       expect(outputs.major).toBe('1');
       expect(outputs.minor).toBe('2');

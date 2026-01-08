@@ -54,6 +54,24 @@ class SemverParser extends base_1.BaseParser {
             build,
         });
     }
+    reconstructVersion(info, originalTag) {
+        // Normalize to 3 parts: add .0 if patch is missing
+        const patch = info.patch || '0';
+        let version = `${info.major}.${info.minor}.${patch}`;
+        // Add prerelease if present
+        // SemVer spec: prerelease identifiers must be dot-separated, not hyphen-separated
+        if (info.prerelease) {
+            // Normalize hyphens to dots in prerelease identifiers to conform to SemVer spec
+            const normalizedPrerelease = info.prerelease.replace(/-/g, '.');
+            version += `-${normalizedPrerelease}`;
+        }
+        // Add build metadata if present
+        // SemVer spec: build metadata identifiers can be dot or hyphen separated
+        if (info.build) {
+            version += `+${info.build}`;
+        }
+        return version;
+    }
 }
 exports.SemverParser = SemverParser;
 //# sourceMappingURL=semver.js.map

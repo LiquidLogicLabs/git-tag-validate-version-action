@@ -29,11 +29,13 @@ class BaseParser {
     }
     /**
      * Create a successful parse result
+     * Reconstructs the version string from components to ensure normalized format
      */
     createSuccessResult(tag, info) {
+        const reconstructedVersion = this.reconstructVersion(info, tag);
         return {
             isValid: true,
-            version: tag,
+            version: reconstructedVersion,
             info,
         };
     }
