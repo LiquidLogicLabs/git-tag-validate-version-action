@@ -12,7 +12,8 @@ permissions:
 
 jobs:
   lint:
-    if: github.ref_type != 'tag'  # Skip CI on tag pushes (handled by release workflow)
+    # Skip CI on tag pushes or release commits (handled by release workflow)
+    if: github.ref_type != 'tag' && !contains(github.event.head_commit.message, 'chore(release):')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -45,6 +46,7 @@ jobs:
         continue-on-error: true  # Don't fail CI if tests are missing
 
   test:
-    if: github.ref_type != 'tag'  # Skip CI on tag pushes (handled by release workflow)
+    # Skip CI on tag pushes or release commits (handled by release workflow)
+    if: github.ref_type != 'tag' && !contains(github.event.head_commit.message, 'chore(release):')
     uses: ./.github/workflows/test.yml
 
