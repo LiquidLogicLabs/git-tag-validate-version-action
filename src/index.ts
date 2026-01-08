@@ -131,6 +131,17 @@ async function run(): Promise<void> {
     core.setOutput('hasPrerelease', hasPrerelease);
     core.setOutput('hasBuild', hasBuild);
 
+    // Output summary showing the parsed version (this is what will be in the output)
+    if (parseResult.isValid) {
+      core.info(`📦 Version output: ${parseResult.version}`);
+      core.info(`   Format: ${format}`);
+      if (parseResult.info.major) {
+        core.info(`   Components: ${parseResult.info.major}.${parseResult.info.minor || '0'}.${parseResult.info.patch || '0'}`);
+      }
+    } else {
+      core.warning(`⚠ Version output (original tag): ${parseResult.version}`);
+    }
+
     core.debug('Action completed successfully');
   } catch (error) {
     if (error instanceof Error) {
