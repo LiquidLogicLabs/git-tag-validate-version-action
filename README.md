@@ -1,6 +1,6 @@
 # Git Tag Validate Version Action
 
-[![CI](https://github.com/LiquidLogicLabs/actions/git-tag-validate-version-action/actions/workflows/ci.yml/badge.svg)](https://github.com/LiquidLogicLabs/actions/git-tag-validate-version-action/actions/workflows/ci.yml)
+[![CI](https://github.com/LiquidLogicLabs/git-action-tag-validate-version/actions/workflows/ci.yml/badge.svg)](https://github.com/LiquidLogicLabs/git-action-tag-validate-version/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue.svg)](https://www.typescriptlang.org/)
 
@@ -21,7 +21,7 @@ A GitHub Action that validates and parses git tags into structured version infor
 
 ```yaml
 - name: Parse version from most recent tag
-  uses: LiquidLogicLabs/actions/git-tag-validate-version-action@v1
+  uses: LiquidLogicLabs/git-action-tag-validate-version@v1
   id: version
 ```
 
@@ -29,7 +29,7 @@ A GitHub Action that validates and parses git tags into structured version infor
 
 ```yaml
 - name: Parse specific tag
-  uses: LiquidLogicLabs/actions/git-tag-validate-version-action@v1
+  uses: LiquidLogicLabs/git-action-tag-validate-version@v1
   with:
     tag: 'v1.2.3'
   id: version
@@ -39,7 +39,7 @@ A GitHub Action that validates and parses git tags into structured version infor
 
 ```yaml
 - name: Parse as semver
-  uses: LiquidLogicLabs/actions/git-tag-validate-version-action@v1
+  uses: LiquidLogicLabs/git-action-tag-validate-version@v1
   with:
     tag: 'v1.2.3-alpha.1'
     versionType: 'semver'
@@ -54,7 +54,7 @@ Verbose logging can be enabled in two ways:
 
 ```yaml
 - name: Parse version with debug logging
-  uses: LiquidLogicLabs/actions/git-tag-validate-version-action@v1
+  uses: LiquidLogicLabs/git-action-tag-validate-version@v1
   with:
     tag: 'v1.2.3'
     verbose: 'true'
@@ -82,7 +82,7 @@ jobs:
           fetch-depth: 0
 
       - name: Parse version with debug logging
-        uses: LiquidLogicLabs/actions/git-tag-validate-version-action@v1
+        uses: LiquidLogicLabs/git-action-tag-validate-version@v1
         with:
           tag: 'v1.2.3'
         id: version
@@ -92,7 +92,7 @@ Or enable it for a specific step:
 
 ```yaml
 - name: Parse version with debug logging
-  uses: LiquidLogicLabs/actions/git-tag-validate-version-action@v1
+  uses: LiquidLogicLabs/git-action-tag-validate-version@v1
   env:
     ACTIONS_STEP_DEBUG: true
   with:
@@ -106,7 +106,7 @@ Both methods enable the same debug output. The `verbose` input flag is a conveni
 
 ```yaml
 - name: Parse version
-  uses: LiquidLogicLabs/actions/git-tag-validate-version-action@v1
+  uses: LiquidLogicLabs/git-action-tag-validate-version@v1
   id: version
 
 - name: Use parsed version
@@ -248,7 +248,7 @@ jobs:
           fetch-depth: 0
 
       - name: Parse version
-        uses: LiquidLogicLabs/actions/git-tag-validate-version-action@v1
+        uses: LiquidLogicLabs/git-action-tag-validate-version@v1
         id: version
 
       - name: Create release
@@ -263,7 +263,7 @@ jobs:
 
 ```yaml
 - name: Parse Docker tag
-  uses: LiquidLogicLabs/actions/git-tag-validate-version-action@v1
+  uses: LiquidLogicLabs/git-action-tag-validate-version@v1
   with:
     tag: '1.2.3-alpine'
     versionType: 'docker'
@@ -274,7 +274,7 @@ jobs:
 
 ```yaml
 - name: Parse calver tag
-  uses: LiquidLogicLabs/actions/git-tag-validate-version-action@v1
+  uses: LiquidLogicLabs/git-action-tag-validate-version@v1
   with:
     tag: '2024.01.15'
     versionType: 'calver'

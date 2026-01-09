@@ -13,8 +13,8 @@ This document provides information for developers who want to contribute to this
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/LiquidLogicLabs/git-tag-parse-version-action.git
-cd git-tag-parse-version-action
+git clone https://github.com/LiquidLogicLabs/git-action-tag-validate-version.git
+cd git-action-tag-validate-version
 ```
 
 ### Install Dependencies
